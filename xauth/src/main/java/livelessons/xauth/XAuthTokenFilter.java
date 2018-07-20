@@ -1,4 +1,4 @@
-package livelessons.custom.xauth;
+package livelessons.xauth;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,7 +22,11 @@ import java.util.Optional;
 public class XAuthTokenFilter extends GenericFilterBean {
 
 		private final UserDetailsService detailsService;
-		private final String xAuthTokenHeaderName;
+		private String xAuthTokenHeaderName;
+
+		public void setxAuthTokenHeaderName(String xAuthTokenHeaderName) {
+				this.xAuthTokenHeaderName = xAuthTokenHeaderName;
+		}
 
 		XAuthTokenFilter(UserDetailsService userDetailsService) {
 				this(userDetailsService, "x-auth-token");

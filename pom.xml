@@ -16,6 +16,7 @@
     <modules>
         <module>login</module>
         <module>userdetails</module>
+        <module>xauth</module>
         <module>custom</module>
     </modules>
     <dependencyManagement>

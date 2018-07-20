@@ -1,4 +1,4 @@
-package livelessons.custom.xauth;
+package livelessons.xauth;
 
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.codec.Hex;
