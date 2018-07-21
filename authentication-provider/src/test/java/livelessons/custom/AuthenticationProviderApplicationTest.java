@@ -1,4 +1,4 @@
-package livelessons;
+package livelessons.custom;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -22,11 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 
-@SpringBootTest(classes = {AuthenticationApplication.class,
-	AuthenticationApplicationTest.Replacer.class})
+@SpringBootTest(classes = {AuthenticationProviderApplication.class,
+	AuthenticationProviderApplicationTest.Replacer.class})
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
-public class AuthenticationApplicationTest {
+public class AuthenticationProviderApplicationTest {
 
 		private static final String USER = "USER", PW = "PW";
 
@@ -55,14 +55,12 @@ public class AuthenticationApplicationTest {
 								}
 						};
 				}
-
 		}
 
 		@Autowired
 		private MockMvc mockMvc;
 
 		private final Log log = LogFactory.getLog(getClass());
-
 
 		@Autowired
 		public void config(AtlassianCrowdAuthenticationProvider ap) throws Exception {

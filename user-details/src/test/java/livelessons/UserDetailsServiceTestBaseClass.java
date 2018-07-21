@@ -1,12 +1,14 @@
 package livelessons;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,9 +36,6 @@ public class UserDetailsServiceTestBaseClass {
 		private final static String USERNAME = "user1";
 
 		@Autowired
-		private PasswordEncoder passwordEncoder;
-
-		@Autowired
 		private UserDetailsManager userDetailsManager;
 
 		@Autowired
@@ -55,24 +54,34 @@ public class UserDetailsServiceTestBaseClass {
 					.andExpect(content().string(expectedString));
 		}
 
-		protected Collection<UserDetails> contributeUsers() {
-				return IntStream
-					.range(0, 5)
-					.mapToObj(i -> new User("user" + i, getPasswordEncoder().encode("password" + i), true, true, true, true, AuthorityUtils.createAuthorityList("USER")))
-					.collect(Collectors.toList());
-		}
+		@Configuration
+		@Profile("!ldap")
+		public static class Initializer implements SmartInitializingSingleton {
 
-		protected PasswordEncoder getPasswordEncoder() {
-				return passwordEncoder;
-		}
+				private final PasswordEncoder passwordEncoder;
+				private final UserDetailsManager userDetailsManager;
 
-		@Before
-		public void before() {
-				Consumer<UserDetails> process = user -> {
-						this.userDetailsManager.deleteUser(user.getUsername());
-						this.userDetailsManager.createUser(user);
-				};
-				contributeUsers().forEach(process);
+				Initializer(PasswordEncoder passwordEncoder,
+																UserDetailsManager userDetailsManager) {
+						this.passwordEncoder = passwordEncoder;
+						this.userDetailsManager = userDetailsManager;
+				}
+
+				@Override
+				public void afterSingletonsInstantiated() {
+
+						Consumer<UserDetails> process = user -> {
+								this.userDetailsManager.deleteUser(user.getUsername());
+								this.userDetailsManager.createUser(user);
+						};
+
+						Collection<UserDetails> userDetails = IntStream
+							.range(0, 5)
+							.mapToObj(i -> new User("user" + i, this.passwordEncoder.encode("password" + i), true, true, true, true, AuthorityUtils.createAuthorityList("USER")))
+							.collect(Collectors.toList());
+
+						userDetails.forEach(process);
+				}
 		}
 
 		@Test

@@ -1,4 +1,4 @@
-package livelessons;
+package livelessons.custom;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,16 +18,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
 @SpringBootApplication
-public class AuthenticationApplication {
+public class AuthenticationProviderApplication {
 
 		public static void main(String args[]) {
-				SpringApplication.run(AuthenticationApplication.class, args);
+				SpringApplication.run(AuthenticationProviderApplication.class, args);
 		}
 
 		@Configuration

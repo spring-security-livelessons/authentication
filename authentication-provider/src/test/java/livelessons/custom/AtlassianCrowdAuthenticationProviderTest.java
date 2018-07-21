@@ -1,4 +1,4 @@
-package livelessons;
+package livelessons.custom;
 
 import org.junit.Assert;
 import org.junit.Test;
