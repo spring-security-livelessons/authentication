@@ -7,12 +7,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Slf4j
-public class XAuthDslConfigurer extends AbstractHttpConfigurer<XAuthDslConfigurer, HttpSecurity> {
-
+public class XAuthDslConfigurer
+	extends AbstractHttpConfigurer<XAuthDslConfigurer, HttpSecurity> {
 
 		@Override
 		public void init(HttpSecurity builder) throws Exception {
-				log.info(XAuthDslConfigurer.class.getName() + "#init(HttpSecurity)");
 				builder
 					.httpBasic()
 					.and()
@@ -21,13 +20,8 @@ public class XAuthDslConfigurer extends AbstractHttpConfigurer<XAuthDslConfigure
 
 		@Override
 		public void configure(HttpSecurity builder) throws Exception {
-
-				log.info(XAuthDslConfigurer.class.getName() + "#configure(HttpSecurity)");
-
 				ApplicationContext context = builder.getSharedObject(ApplicationContext.class);
-
 				XAuthTokenFilter xAuthTokenFilter = context.getBean(XAuthTokenFilter.class);
-
 				builder.addFilterBefore(xAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
 		}
 

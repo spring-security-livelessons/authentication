@@ -74,7 +74,7 @@ public class AuthenticationApplication {
 							.httpBasic()
 							.and()
 							.authorizeRequests()
-							.mvcMatchers("/").authenticated();
+							.anyRequest().authenticated();
 				}
 		}
 }

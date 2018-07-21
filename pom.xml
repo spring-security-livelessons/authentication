@@ -17,7 +17,8 @@
         <module>login</module>
         <module>userdetails</module>
         <module>xauth</module>
-        <module>custom</module>
+        <module>xauth-app</module>
+        <module>authentication-provider</module>
     </modules>
     <dependencyManagement>
         <dependencies>

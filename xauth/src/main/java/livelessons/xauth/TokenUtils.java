@@ -11,7 +11,7 @@ import java.util.Optional;
 abstract class TokenUtils {
 
 		private static final String MAGIC_KEY = "obfuscate";
-		private static final MessageDigest digest = buildDigest();
+		private static final MessageDigest MESSAGE_DIGEST = buildDigest();
 
 		private static MessageDigest buildDigest() {
 				try {
@@ -34,7 +34,7 @@ abstract class TokenUtils {
 				signature += (expires) + (":");
 				signature += (userDetails.getPassword()) + (":");
 				signature += (TokenUtils.MAGIC_KEY);
-				return new String(Hex.encode(digest.digest(signature.getBytes())));
+				return new String(Hex.encode(MESSAGE_DIGEST.digest(signature.getBytes())));
 		}
 
 		static String getUserNameFromToken(String authToken) {

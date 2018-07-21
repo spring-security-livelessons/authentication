@@ -15,18 +15,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Optional;
 
-/**
-	* @author <a href="mailto:josh@joshlong.com">Josh Long</a>
-	*/
 @Slf4j
-public class XAuthTokenFilter extends GenericFilterBean {
+class XAuthTokenFilter extends GenericFilterBean {
 
 		private final UserDetailsService detailsService;
 		private String xAuthTokenHeaderName;
-
-		public void setxAuthTokenHeaderName(String xAuthTokenHeaderName) {
-				this.xAuthTokenHeaderName = xAuthTokenHeaderName;
-		}
 
 		XAuthTokenFilter(UserDetailsService userDetailsService) {
 				this(userDetailsService, "x-auth-token");
