@@ -35,16 +35,6 @@ public class AuthenticationApplication {
 				return PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		}
 
-		@RestController
-		public static class GreetingsRestController {
-
-				static String GREETINGS = "Hello %s!";
-
-				@GetMapping("/")
-				String hi(Principal principal) {
-						return String.format(GREETINGS, principal.getName());
-				}
-		}
 
 		@Bean
 		@Profile("memory")
@@ -79,3 +69,12 @@ public class AuthenticationApplication {
 		}
 }
 
+
+@RestController
+class GreetingsRestController {
+
+		@GetMapping("/greet")
+		String greet(Principal p) {
+				return "hello, " + p.getName() + "!";
+		}
+}

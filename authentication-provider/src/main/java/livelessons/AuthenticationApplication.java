@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
+
 @SpringBootApplication
 public class AuthenticationApplication {
 
@@ -60,9 +62,9 @@ public class AuthenticationApplication {
 @RestController
 class GreetingsRestController {
 
-		@GetMapping("/hi/{name}")
-		String hi(@PathVariable String name) {
-				return "hi, " + name + "!";
+		@GetMapping("/greet")
+		String greet(Principal p) {
+				return "hello, " + p.getName() + "!";
 		}
 }
 
@@ -75,14 +77,11 @@ class AtlassianCrowdAuthenticationProvider implements AuthenticationProvider {
 		// visible for testing.
 		final String hardcodedUsername, hardcodedPassword;
 
-
-
 		AtlassianCrowdAuthenticationProvider(
 			@Value("${username:user}") String usr,
 			@Value("${password:pw}") String pw) {
 				this.hardcodedUsername = usr;
 				this.hardcodedPassword = pw;
-				this.log.debug("user: " + usr + ", password: " + pw);
 		}
 
 
@@ -93,9 +92,7 @@ class AtlassianCrowdAuthenticationProvider implements AuthenticationProvider {
 				String password = authentication.getCredentials().toString();
 
 				if (isValid(username, password)) {
-						return new UsernamePasswordAuthenticationToken(
-							username, password, AuthorityUtils.createAuthorityList("USER"));
-
+						return new UsernamePasswordAuthenticationToken(username, password, AuthorityUtils.createAuthorityList("USER"));
 				}
 
 				throw new BadCredentialsException("couldn't authenticate (" + authentication + ")");

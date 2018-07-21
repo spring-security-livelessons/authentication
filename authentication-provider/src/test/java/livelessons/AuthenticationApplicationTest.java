@@ -61,6 +61,8 @@ public class AuthenticationApplicationTest {
 		@Autowired
 		private MockMvc mockMvc;
 
+		private final Log log = LogFactory.getLog(getClass());
+
 
 		@Autowired
 		public void config(AtlassianCrowdAuthenticationProvider ap) throws Exception {
@@ -68,20 +70,18 @@ public class AuthenticationApplicationTest {
 					ap.hardcodedUsername, ap.hardcodedPassword));
 		}
 
-		private final Log log = LogFactory.getLog(getClass());
-
 		@Test
 		public void login() throws Exception {
 
 				String name = USER, pw = PW;
-				this.mockMvc.perform(MockMvcRequestBuilders.get("/hi/" + name)
+				this.mockMvc.perform(MockMvcRequestBuilders.get("/greet")
 					.header(HttpHeaders.AUTHORIZATION, basicAuthorizationHeader(name, pw)))
 					.andExpect(MockMvcResultMatchers.status().isOk())
 					.andExpect(result -> {
 							String body = result
 								.getResponse()
 								.getContentAsString();
-							Assert.assertEquals(body, "hi, " + name + "!");
+							Assert.assertEquals(body, "hello, " + name + "!");
 					});
 		}
 

@@ -47,10 +47,10 @@ public class UserDetailsServiceTestBaseClass {
 		@WithMockUser(USERNAME)
 		public void authenticate() throws Exception {
 
-				String expectedString = String.format(AuthenticationApplication.GreetingsRestController.GREETINGS, USERNAME);
+				String expectedString = String.format("hello, %s!", USERNAME);
 
 				this.mvc
-					.perform(get("/"))
+					.perform(get("/greet"))
 					.andExpect(status().isOk())
 					.andExpect(content().string(expectedString));
 		}
