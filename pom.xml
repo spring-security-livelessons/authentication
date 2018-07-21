@@ -15,7 +15,7 @@
     </parent>
     <modules>
         <module>login</module>
-        <module>userdetails</module>
+        <module>user-details</module>
         <module>xauth</module>
         <module>xauth-app</module>
         <module>authentication-provider</module>
