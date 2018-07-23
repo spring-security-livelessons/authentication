@@ -1,5 +1,7 @@
 package livelessons;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,6 +39,11 @@ class LoginController {
 				return "hidden";
 		}
 
+		@GetMapping("/logout-success")
+		String logout() {
+				return "logout";
+		}
+
 		@GetMapping("/login")
 		String login() {
 				return "login";
@@ -46,13 +53,12 @@ class LoginController {
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+		private final Log log = LogFactory.getLog(getClass());
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
- 				http
-					.authorizeRequests()
-					.anyRequest().authenticated()
-					.and()
-					.formLogin()
-					.loginPage("/login").permitAll();
+				http.authorizeRequests().anyRequest().authenticated();
+				http.logout().logoutUrl("/logout").logoutSuccessUrl("/logout-success").permitAll();
+				http.formLogin().loginPage("/login").permitAll();
 		}
 }
