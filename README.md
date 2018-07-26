@@ -5,6 +5,24 @@
 
 - LDAP: dn = domain name (a hierarchy to find the current user, or anythign in LDAP). LDAP is a tree structure. `uid={0},ou=people` says find a UID leaf under the people branch. user info is in one tree, and groups (roles/autorities) are stored in another. so we must psecify both queries. `ou=groups` does that. `ldap://localhost:8389/dc=springframework,dc=org` is the base URL for both groups and users. eg: `dc=springframework,dc=org,ou=people,uid=....` there are two type sof auth in ldap: BIND authentication. BIND is that whateve the user types for user and password u try to LDAP bind by presenting user/pw to directory an i tells u if the user/pw is correct. the other type, LDAP search, is password comparison wherein we submit a query, get results, an compare PW in spring security client java code. So, auth happens in LDAP bind on the LDAP server and auth happens in the spring security client in second type. the LDAP server usually has a password encoding approach. there are specific fields for passwords. as an app developer we reately have the ability to 'write' passwords to LDAP, omore often need to read from LDAP that exists for other purporses. its been installed by the organiation and we have to reuse it. so, while we could a) side step the password field and write passwords that we encode into some other field and b) mae spring security aware of this change c) read the passwords and compare them in the client code, this is impractical. so we use things like `LdapShaPasswordEncoder` , which you can see is deprecated but NOT going anywhere. its a warning!
 
+https://stackoverflow.com/questions/18756688/what-are-cn-ou-dc-in-an-ldap-search/18756876 
+CN = Common Name
+OU = Organizational Unit
+DC = Domain Component
+These are all parts of the X.500 Directory Specification, which defines nodes in a LDAP directory.
+
+You can also read up on LDAP data Interchange Format (LDIF), which is an alternate format.
+
+You read it from right to left, the right-most component is the root of the tree, and the left most component is the node (or leaf) you want to reach.
+
+Each = pair is a search criteria.
+
+With your example query
+
+("CN=Dev-India,OU=Distribution Groups,DC=gp,DC=gl,DC=google,DC=com");
+In effect the query is:
+
+
 
 
 1. this is plain text. use NoOpPasswordEncoder.getInstance() ;
