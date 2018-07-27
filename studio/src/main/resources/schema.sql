@@ -6,13 +6,13 @@ create table users (
   enabled  boolean                 not null
 );
 
+
 drop table if exists authorities;
-
 create table authorities (
-
   username  varchar_ignorecase(50) not null,
   authority varchar_ignorecase(50) not null,
-  constraint auth_users foreign key (username) references users (username)
+  constraint fk_authorities_USERS foreign key (username) references users (username)
 );
+
 create unique index ix_auth_username
   on authorities (username, authority);
