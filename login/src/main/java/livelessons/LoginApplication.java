@@ -53,8 +53,6 @@ class LoginController {
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-		private final Log log = LogFactory.getLog(getClass());
-
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 				http.authorizeRequests().anyRequest().authenticated();
