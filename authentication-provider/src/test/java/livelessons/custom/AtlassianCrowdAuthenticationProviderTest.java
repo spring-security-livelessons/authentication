@@ -9,29 +9,37 @@ import org.springframework.security.core.Authentication;
 
 public class AtlassianCrowdAuthenticationProviderTest {
 
-		private final String username = "rob";
-		private final String password = "b0r";
-		private final AtlassianCrowdAuthenticationProvider provider = new AtlassianCrowdAuthenticationProvider(this.username, this.password);
+	private final String username = "rob";
 
-		@Test
-		public void authenticateSuccess() {
+	private final String password = "b0r";
 
-				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-				Authentication authenticate = this.provider.authenticate(token);
-				Assert.assertTrue("the authentication should be valid", authenticate.isAuthenticated());
-		}
+	private final AtlassianCrowdAuthenticationProvider provider = new AtlassianCrowdAuthenticationProvider(
+			this.username, this.password);
 
-		@Test(expected = BadCredentialsException.class)
-		public void authenticateFail() {
-				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("WR0NG", "N0P3");
-				this.provider.authenticate(token);
-				Assert.fail("this should fail");
-		}
+	@Test
+	public void authenticateSuccess() {
 
-		@Test
-		public void supports() {
-				Assert.assertTrue(this.provider.supports(UsernamePasswordAuthenticationToken.class));
-				Assert.assertTrue(this.provider.supports(JaasAuthenticationToken.class));
-				Assert.assertFalse(this.provider.supports(RuntimeException.class));
-		}
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				username, password);
+		Authentication authenticate = this.provider.authenticate(token);
+		Assert.assertTrue("the authentication should be valid",
+				authenticate.isAuthenticated());
+	}
+
+	@Test(expected = BadCredentialsException.class)
+	public void authenticateFail() {
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				"WR0NG", "N0P3");
+		this.provider.authenticate(token);
+		Assert.fail("this should fail");
+	}
+
+	@Test
+	public void supports() {
+		Assert.assertTrue(
+				this.provider.supports(UsernamePasswordAuthenticationToken.class));
+		Assert.assertTrue(this.provider.supports(JaasAuthenticationToken.class));
+		Assert.assertFalse(this.provider.supports(RuntimeException.class));
+	}
+
 }

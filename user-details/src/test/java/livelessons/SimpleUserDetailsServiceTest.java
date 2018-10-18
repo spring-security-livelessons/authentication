@@ -1,6 +1,5 @@
 package livelessons;
 
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,56 +24,65 @@ import java.util.stream.IntStream;
 
 public class SimpleUserDetailsServiceTest {
 
-		private final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-		private final UserDetailsService userDetailsService = new InMemoryUserDetailsManager(this.contributeUsers());
-		private final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider() {
-				{
-						setPasswordEncoder(passwordEncoder);
-						setUserDetailsService(userDetailsService);
-				}
-		};
+	private final PasswordEncoder passwordEncoder = PasswordEncoderFactories
+			.createDelegatingPasswordEncoder();
 
-		@Test
-		@SuppressWarnings("unchecked")
-		public void encode() throws Exception {
-				String encodedPassword = this.passwordEncoder.encode("password");
-				Assert.assertTrue(this.passwordEncoder.matches("password", encodedPassword));
+	private final UserDetailsService userDetailsService = new InMemoryUserDetailsManager(
+			this.contributeUsers());
 
-				// is the ID in the encoded PW?
-				Field idForEncode = fieldFor(DelegatingPasswordEncoder.class, "idForEncode");
-				String id = String.class.cast(idForEncode.get(this.passwordEncoder));
-				Assert.assertTrue(encodedPassword.contains(id));
-
-				// is the default PasswordEncoder BCrypt?
-				Field pwEncoderMapField = fieldFor(DelegatingPasswordEncoder.class, "idToPasswordEncoder");
-				Map<String, PasswordEncoder> pwEncoderMap = (Map<String, PasswordEncoder>)
-					pwEncoderMapField.get(this.passwordEncoder);
-				Assert.assertTrue(pwEncoderMap.get(id) instanceof BCryptPasswordEncoder);
+	private final DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider() {
+		{
+			setPasswordEncoder(passwordEncoder);
+			setUserDetailsService(userDetailsService);
 		}
+	};
 
-		@Test
-		public void loadUserByUsername() {
-				UserDetails userDetails = this.userDetailsService.loadUserByUsername("user1");
-				Assert.assertNotNull(userDetails);
-		}
+	@Test
+	@SuppressWarnings("unchecked")
+	public void encode() throws Exception {
+		String encodedPassword = this.passwordEncoder.encode("password");
+		Assert.assertTrue(this.passwordEncoder.matches("password", encodedPassword));
 
-		@Test
-		public void authenticate() {
-				Authentication authentication = new UsernamePasswordAuthenticationToken("user1", "password1");
-				Authentication result = this.daoAuthenticationProvider.authenticate(authentication);
-				Assert.assertTrue(result.isAuthenticated());
-		}
+		// is the ID in the encoded PW?
+		Field idForEncode = fieldFor(DelegatingPasswordEncoder.class, "idForEncode");
+		String id = String.class.cast(idForEncode.get(this.passwordEncoder));
+		Assert.assertTrue(encodedPassword.contains(id));
 
-		private Collection<UserDetails> contributeUsers() {
-				return IntStream
-					.range(0, 5)
-					.mapToObj(i -> new User("user" + i, this.passwordEncoder.encode("password" + i), true, true, true, true, AuthorityUtils.createAuthorityList("USER")))
-					.collect(Collectors.toList());
-		}
+		// is the default PasswordEncoder BCrypt?
+		Field pwEncoderMapField = fieldFor(DelegatingPasswordEncoder.class,
+				"idToPasswordEncoder");
+		Map<String, PasswordEncoder> pwEncoderMap = (Map<String, PasswordEncoder>) pwEncoderMapField
+				.get(this.passwordEncoder);
+		Assert.assertTrue(pwEncoderMap.get(id) instanceof BCryptPasswordEncoder);
+	}
 
-		private Field fieldFor(Class<?> aClass, String fieldName) {
-				Field idForEncode = FieldUtils.getField(aClass, fieldName);
-				idForEncode.setAccessible(true);
-				return idForEncode;
-		}
+	@Test
+	public void loadUserByUsername() {
+		UserDetails userDetails = this.userDetailsService.loadUserByUsername("user1");
+		Assert.assertNotNull(userDetails);
+	}
+
+	@Test
+	public void authenticate() {
+		Authentication authentication = new UsernamePasswordAuthenticationToken("user1",
+				"password1");
+		Authentication result = this.daoAuthenticationProvider
+				.authenticate(authentication);
+		Assert.assertTrue(result.isAuthenticated());
+	}
+
+	private Collection<UserDetails> contributeUsers() {
+		return IntStream.range(0, 5)
+				.mapToObj(i -> new User("user" + i,
+						this.passwordEncoder.encode("password" + i), true, true, true,
+						true, AuthorityUtils.createAuthorityList("USER")))
+				.collect(Collectors.toList());
+	}
+
+	private Field fieldFor(Class<?> aClass, String fieldName) {
+		Field idForEncode = FieldUtils.getField(aClass, fieldName);
+		idForEncode.setAccessible(true);
+		return idForEncode;
+	}
+
 }

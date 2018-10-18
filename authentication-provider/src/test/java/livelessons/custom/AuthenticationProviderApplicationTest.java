@@ -21,72 +21,73 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-
-@SpringBootTest(classes = {AuthenticationProviderApplication.class,
-	AuthenticationProviderApplicationTest.Replacer.class})
+@SpringBootTest(classes = { AuthenticationProviderApplication.class,
+		AuthenticationProviderApplicationTest.Replacer.class })
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 public class AuthenticationProviderApplicationTest {
 
-		private static final String USER = "USER", PW = "PW";
+	private static final String USER = "USER", PW = "PW";
 
+	@Configuration
+	public static class Replacer {
 
-		@Configuration
-		public static class Replacer {
+		@Bean
+		BeanPostProcessor beanPostProcessor() {
+			return new BeanPostProcessor() {
 
-				@Bean
-				BeanPostProcessor beanPostProcessor() {
-						return new BeanPostProcessor() {
-
-								@Override
-								public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-										if (bean instanceof AtlassianCrowdAuthenticationProvider) {
-												// want to replace it with one that we control for the test.
-												return new AtlassianCrowdAuthenticationProvider(USER, PW);
-										}
-										else {
-												return bean;
-										}
-								}
-
-								@Override
-								public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-										return bean;
-								}
-						};
+				@Override
+				public Object postProcessBeforeInitialization(Object bean,
+						String beanName) throws BeansException {
+					if (bean instanceof AtlassianCrowdAuthenticationProvider) {
+						// want to replace it with one that we control for the test.
+						return new AtlassianCrowdAuthenticationProvider(USER, PW);
+					}
+					else {
+						return bean;
+					}
 				}
+
+				@Override
+				public Object postProcessAfterInitialization(Object bean, String beanName)
+						throws BeansException {
+					return bean;
+				}
+			};
 		}
 
-		@Autowired
-		private MockMvc mockMvc;
+	}
 
-		private final Log log = LogFactory.getLog(getClass());
+	@Autowired
+	private MockMvc mockMvc;
 
-		@Autowired
-		public void config(AtlassianCrowdAuthenticationProvider ap) throws Exception {
-				this.log.info(String.format("attempting to authenticate using username '%s' and password '%s'",
-					ap.hardcodedUsername, ap.hardcodedPassword));
-		}
+	private final Log log = LogFactory.getLog(getClass());
 
-		@Test
-		public void login() throws Exception {
+	@Autowired
+	public void config(AtlassianCrowdAuthenticationProvider ap) throws Exception {
+		this.log.info(String.format(
+				"attempting to authenticate using username '%s' and password '%s'",
+				ap.hardcodedUsername, ap.hardcodedPassword));
+	}
 
-				String name = USER, pw = PW;
-				this.mockMvc.perform(MockMvcRequestBuilders.get("/greet")
-					.header(HttpHeaders.AUTHORIZATION, basicAuthorizationHeader(name, pw)))
-					.andExpect(MockMvcResultMatchers.status().isOk())
-					.andExpect(result -> {
-							String body = result
-								.getResponse()
-								.getContentAsString();
-							Assert.assertEquals(body, "hello, " + name + "!");
-					});
-		}
+	@Test
+	public void login() throws Exception {
 
-		private String basicAuthorizationHeader(String u, String p) {
-				String auth = u + ':' + p;
-				byte[] encoded = Base64.getEncoder().encode(auth.getBytes(
-					StandardCharsets.ISO_8859_1));
-				return "Basic " + new String(encoded);
-		}
+		String name = USER, pw = PW;
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.get("/greet").header(
+						HttpHeaders.AUTHORIZATION, basicAuthorizationHeader(name, pw)))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(result -> {
+					String body = result.getResponse().getContentAsString();
+					Assert.assertEquals(body, "hello, " + name + "!");
+				});
+	}
+
+	private String basicAuthorizationHeader(String u, String p) {
+		String auth = u + ':' + p;
+		byte[] encoded = Base64.getEncoder()
+				.encode(auth.getBytes(StandardCharsets.ISO_8859_1));
+		return "Basic " + new String(encoded);
+	}
+
 }

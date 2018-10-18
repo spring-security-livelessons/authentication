@@ -26,56 +26,53 @@ import java.security.Principal;
 @SpringBootApplication
 public class AuthenticationApplication {
 
-		private Log log = LogFactory.getLog(getClass());
+	private Log log = LogFactory.getLog(getClass());
 
-		public static void main(String args[]) {
-				SpringApplication.run(AuthenticationApplication.class, args);
+	public static void main(String args[]) {
+		SpringApplication.run(AuthenticationApplication.class, args);
+	}
+
+	@Bean
+	PasswordEncoder passwordEncoder() {
+		return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+	}
+
+	@Bean
+	@Profile("memory")
+	UserDetailsManager memory() {
+		log.info("starting the memory " + InMemoryUserDetailsManager.class.getName());
+		return new InMemoryUserDetailsManager();
+	}
+
+	@Bean
+	@Profile("jdbc")
+	UserDetailsManager jdbc(DataSource ds) {
+		log.info("starting the JDBC " + JdbcUserDetailsManager.class.getName());
+		JdbcUserDetailsManager jdbc = new JdbcUserDetailsManager();
+		jdbc.setDataSource(ds);
+		return jdbc;
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	public static class BasicAuthorizationConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.csrf().and().httpBasic().and().authorizeRequests().anyRequest()
+					.authenticated();
 		}
 
-		@Bean
-		PasswordEncoder passwordEncoder() {
-				return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-		}
+	}
 
-		@Bean
-		@Profile("memory")
-		UserDetailsManager memory() {
-				log.info("starting the memory " + InMemoryUserDetailsManager.class.getName());
-				return new InMemoryUserDetailsManager();
-		}
-
-		@Bean
-		@Profile("jdbc")
-		UserDetailsManager jdbc(DataSource ds) {
-				log.info("starting the JDBC " + JdbcUserDetailsManager.class.getName());
-				JdbcUserDetailsManager jdbc = new JdbcUserDetailsManager();
-				jdbc.setDataSource(ds);
-				return jdbc;
-		}
-
-		@Configuration
-		@EnableWebSecurity
-		public static class BasicAuthorizationConfig extends WebSecurityConfigurerAdapter {
-
-				@Override
-				protected void configure(HttpSecurity http) throws Exception {
-						http
-							.csrf()
-							.and()
-							.httpBasic()
-							.and()
-							.authorizeRequests()
-							.anyRequest().authenticated();
-				}
-		}
 }
-
 
 @RestController
 class GreetingsRestController {
 
-		@GetMapping("/greet")
-		String greet(Principal p) {
-				return "hello, " + p.getName() + "!";
-		}
+	@GetMapping("/greet")
+	String greet(Principal p) {
+		return "hello, " + p.getName() + "!";
+	}
+
 }

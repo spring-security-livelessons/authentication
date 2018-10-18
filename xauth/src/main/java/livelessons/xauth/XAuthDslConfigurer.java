@@ -8,21 +8,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Slf4j
 public class XAuthDslConfigurer
-	extends AbstractHttpConfigurer<XAuthDslConfigurer, HttpSecurity> {
+		extends AbstractHttpConfigurer<XAuthDslConfigurer, HttpSecurity> {
 
-		@Override
-		public void init(HttpSecurity builder) throws Exception {
-				builder
-					.httpBasic()
-					.and()
-					.csrf().disable();
-		}
+	@Override
+	public void init(HttpSecurity builder) throws Exception {
+		builder.httpBasic().and().csrf().disable();
+	}
 
-		@Override
-		public void configure(HttpSecurity builder) throws Exception {
-				ApplicationContext context = builder.getSharedObject(ApplicationContext.class);
-				XAuthTokenFilter xAuthTokenFilter = context.getBean(XAuthTokenFilter.class);
-				builder.addFilterBefore(xAuthTokenFilter, UsernamePasswordAuthenticationFilter.class);
-		}
+	@Override
+	public void configure(HttpSecurity builder) throws Exception {
+		ApplicationContext context = builder.getSharedObject(ApplicationContext.class);
+		XAuthTokenFilter xAuthTokenFilter = context.getBean(XAuthTokenFilter.class);
+		builder.addFilterBefore(xAuthTokenFilter,
+				UsernamePasswordAuthenticationFilter.class);
+	}
 
 }

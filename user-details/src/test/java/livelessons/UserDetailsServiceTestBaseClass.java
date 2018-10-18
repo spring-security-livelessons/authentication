@@ -3,10 +3,11 @@ package livelessons;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -27,82 +28,76 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @RunWith(SpringRunner.class)
 public class UserDetailsServiceTestBaseClass {
 
-		private final static String USERNAME = "user1";
+	private final static String USERNAME = "user1";
 
-		@Autowired
-		private UserDetailsManager userDetailsManager;
+	@Autowired
+	private UserDetailsManager userDetailsManager;
 
-		@Autowired
-		private MockMvc mvc;
+	@Autowired
+	private MockMvc mvc;
 
+	@Test
+	@WithMockUser(USERNAME)
+	public void authenticate() throws Exception {
 
-		@Test
-		@WithMockUser(USERNAME)
-		public void authenticate() throws Exception {
+		String expectedString = String.format("hello, %s!", USERNAME);
 
-				String expectedString = String.format("hello, %s!", USERNAME);
+		this.mvc.perform(get("/greet")).andExpect(status().isOk())
+				.andExpect(content().string(expectedString));
+	}
 
-				this.mvc
-					.perform(get("/greet"))
-					.andExpect(status().isOk())
-					.andExpect(content().string(expectedString));
-		}
+	@Test
+	public void loadUserByUsername() {
+		UserDetails user = this.userDetailsManager.loadUserByUsername("user1");
+		Assert.assertNotNull(user);
+	}
 
-		@Configuration
-		@Profile("!ldap")
-		public static class Initializer implements SmartInitializingSingleton {
+	@Test
+	public void createUser() {
+		String user = "user";
 
-				private final PasswordEncoder passwordEncoder;
-				private final UserDetailsManager userDetailsManager;
+		this.userDetailsManager.deleteUser(user);
 
-				Initializer(PasswordEncoder passwordEncoder,
-																UserDetailsManager userDetailsManager) {
-						this.passwordEncoder = passwordEncoder;
-						this.userDetailsManager = userDetailsManager;
-				}
+		UserDetails jane = User.withDefaultPasswordEncoder().username(user).password("pw")
+				.roles("USER").build();
+		this.userDetailsManager.createUser(jane);
+		Assert.assertTrue(this.userDetailsManager.userExists(jane.getUsername()));
+	}
 
-				@Override
-				public void afterSingletonsInstantiated() {
+}
 
-						Consumer<UserDetails> process = user -> {
-								this.userDetailsManager.deleteUser(user.getUsername());
-								this.userDetailsManager.createUser(user);
-						};
+@Configuration
+@Profile("!ldap")
+class Initializer implements ApplicationListener<ApplicationReadyEvent> {
 
-						Collection<UserDetails> userDetails = IntStream
-							.range(0, 5)
-							.mapToObj(i -> new User("user" + i, this.passwordEncoder.encode("password" + i), true, true, true, true, AuthorityUtils.createAuthorityList("USER")))
-							.collect(Collectors.toList());
+	private final PasswordEncoder passwordEncoder;
 
-						userDetails.forEach(process);
-				}
-		}
+	private final UserDetailsManager userDetailsManager;
 
-		@Test
-		public void loadUserByUsername() {
-				UserDetails user = this.userDetailsManager.loadUserByUsername("user1");
-				Assert.assertNotNull(user);
-		}
+	Initializer(PasswordEncoder passwordEncoder, UserDetailsManager userDetailsManager) {
+		this.passwordEncoder = passwordEncoder;
+		this.userDetailsManager = userDetailsManager;
+	}
 
-		@Test
-		public void createUser() {
-				String user = "user";
+	@Override
+	public void onApplicationEvent(ApplicationReadyEvent evt) {
+		Consumer<UserDetails> process = user -> {
+			this.userDetailsManager.deleteUser(user.getUsername());
+			this.userDetailsManager.createUser(user);
+		};
 
-				this.userDetailsManager.deleteUser(user);
+		Collection<UserDetails> userDetails = IntStream.range(0, 5)
+				.mapToObj(i -> new User("user" + i,
+						this.passwordEncoder.encode("password" + i), true, true, true,
+						true, AuthorityUtils.createAuthorityList("USER")))
+				.collect(Collectors.toList());
 
-				UserDetails jane = User
-					.withDefaultPasswordEncoder()
-					.username(user)
-					.password("pw")
-					.roles("USER")
-					.build();
-				this.userDetailsManager.createUser(jane);
-				Assert.assertTrue(this.userDetailsManager.userExists(jane.getUsername()));
-		}
+		userDetails.forEach(process);
+	}
+
 }

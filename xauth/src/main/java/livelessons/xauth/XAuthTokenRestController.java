@@ -18,30 +18,33 @@ import java.util.stream.Collectors;
 @RestController
 class XAuthTokenRestController {
 
-		private final AuthenticationManager authenticationManager;
-		private final UserDetailsService userDetailsService;
+	private final AuthenticationManager authenticationManager;
 
-		XAuthTokenRestController(AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
-				this.authenticationManager = authenticationManager;
-				this.userDetailsService = userDetailsService;
-		}
+	private final UserDetailsService userDetailsService;
 
-		@PostMapping(value = "/authenticate")
-		Map<String, Object> authenticate(
-			@RequestParam String username,
+	XAuthTokenRestController(AuthenticationManager authenticationManager,
+			UserDetailsService userDetailsService) {
+		this.authenticationManager = authenticationManager;
+		this.userDetailsService = userDetailsService;
+	}
+
+	@PostMapping(value = "/authenticate")
+	Map<String, Object> authenticate(@RequestParam String username,
 			@RequestParam String password) {
 
-				UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
-				Authentication authentication = this.authenticationManager.authenticate(token);
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+				username, password);
+		Authentication authentication = this.authenticationManager.authenticate(token);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-				UserDetails details = this.userDetailsService.loadUserByUsername(username);
+		UserDetails details = this.userDetailsService.loadUserByUsername(username);
 
-				Map<String, Object> transfer = new HashMap<>();
-				transfer.put("token", TokenUtils.createToken(details));
-				transfer.put("username", details.getUsername());
-				transfer.put("roles", details.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
-				return transfer;
-		}
+		Map<String, Object> transfer = new HashMap<>();
+		transfer.put("token", TokenUtils.createToken(details));
+		transfer.put("username", details.getUsername());
+		transfer.put("roles", details.getAuthorities().stream()
+				.map(GrantedAuthority::getAuthority).collect(Collectors.toList()));
+		return transfer;
+	}
 
 }

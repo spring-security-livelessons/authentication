@@ -16,34 +16,32 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-@SpringBootTest(classes = {LdapAuthenticationApplication.class})
+@SpringBootTest(classes = { LdapAuthenticationApplication.class })
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("ldap")
 public class LdapAuthenticationApplicationTest {
 
-		@Autowired
-		private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-		@Test
-		public void login() throws Exception {
-				String name = "ben", pw = "benspassword";
-				this.mockMvc.perform(MockMvcRequestBuilders.get("/greet")
-					.header(HttpHeaders.AUTHORIZATION, basicAuthorizationHeader(name, pw)))
-					.andExpect(MockMvcResultMatchers.status().isOk())
-					.andExpect(result -> {
-							String body = result
-								.getResponse()
-								.getContentAsString();
-							Assert.assertEquals(body, "hello, " + name + "!");
-					});
-		}
+	@Test
+	public void login() throws Exception {
+		String name = "ben", pw = "benspassword";
+		this.mockMvc
+				.perform(MockMvcRequestBuilders.get("/greet").header(
+						HttpHeaders.AUTHORIZATION, basicAuthorizationHeader(name, pw)))
+				.andExpect(MockMvcResultMatchers.status().isOk()).andExpect(result -> {
+					String body = result.getResponse().getContentAsString();
+					Assert.assertEquals(body, "hello, " + name + "!");
+				});
+	}
 
-		private String basicAuthorizationHeader(String u, String p) {
-				String auth = u + ':' + p;
-				byte[] encoded = Base64.getEncoder().encode(auth.getBytes(
-					StandardCharsets.ISO_8859_1));
-				return "Basic " + new String(encoded);
-		}
+	private String basicAuthorizationHeader(String u, String p) {
+		String auth = u + ':' + p;
+		byte[] encoded = Base64.getEncoder()
+				.encode(auth.getBytes(StandardCharsets.ISO_8859_1));
+		return "Basic " + new String(encoded);
+	}
 
 }

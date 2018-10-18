@@ -8,15 +8,15 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 @Configuration
 class XAuthConfiguration {
 
-		@Bean
-		XAuthTokenRestController xAuthTokenRestController(
-			AuthenticationManager am,
+	@Bean
+	XAuthTokenRestController xAuthTokenRestController(AuthenticationManager am,
 			UserDetailsService uds) {
-				return new XAuthTokenRestController(am, uds);
-		}
+		return new XAuthTokenRestController(am, uds);
+	}
 
-		@Bean
-		XAuthTokenFilter tokenFilter(UserDetailsService uds) {
-				return new XAuthTokenFilter(uds);
-		}
+	@Bean
+	XAuthTokenFilter tokenFilter(UserDetailsService uds) {
+		return new XAuthTokenFilter(uds);
+	}
+
 }

@@ -16,38 +16,29 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class LoginApplicationTests {
 
-		@Autowired
-		private WebDriver driver;
+	@Autowired
+	private WebDriver driver;
 
-		@Autowired
-		private SecurityProperties securityProperties;
+	@Autowired
+	private SecurityProperties securityProperties;
 
-		@Test
-		public void requiresLogin() {
-				HiddenPage
-					.to(this.driver, LoginPage.class)
-					.assertAt();
-		}
+	@Test
+	public void requiresLogin() {
+		HiddenPage.to(this.driver, LoginPage.class).assertAt();
+	}
 
-		@Test
-		public void loginFailure() {
-				HiddenPage
-					.to(this.driver, LoginPage.class)
-					.form()
-					.username("user")
-					.password("invalid")
-					.login(LoginPage.class)
-					.assertAt();
-		}
+	@Test
+	public void loginFailure() {
+		HiddenPage.to(this.driver, LoginPage.class).form().username("user")
+				.password("invalid").login(LoginPage.class).assertAt();
+	}
 
-		@Test
-		public void loginSuccess() {
-				HiddenPage
-					.to(this.driver, LoginPage.class)
-					.form()
-					.username(this.securityProperties.getUser().getName())
-					.password(this.securityProperties.getUser().getPassword())
-					.login(HiddenPage.class)
-					.assertAt();
-		}
+	@Test
+	public void loginSuccess() {
+		HiddenPage.to(this.driver, LoginPage.class).form()
+				.username(this.securityProperties.getUser().getName())
+				.password(this.securityProperties.getUser().getPassword())
+				.login(HiddenPage.class).assertAt();
+	}
+
 }

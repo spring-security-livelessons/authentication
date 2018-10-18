@@ -31,60 +31,51 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class GreetingsRestControllerTest {
 
+	@Autowired
+	private ObjectMapper objectMapper;
 
-		@Autowired
-		private ObjectMapper objectMapper;
+	@Autowired
+	private WebApplicationContext context;
 
-		@Autowired
-		private WebApplicationContext context;
+	private MockMvc mvc;
 
-		private MockMvc mvc;
+	@Before
+	public void setup() {
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+				.apply(SecurityMockMvcConfigurers.springSecurity()).build();
+	}
 
-		@Before
-		public void setup() {
-				this.mvc = MockMvcBuilders
-					.webAppContextSetup(this.context)
-					.apply(SecurityMockMvcConfigurers.springSecurity())
-					.build();
-		}
+	@Test
+	public void greetFail() throws Exception {
 
-		@Test
-		public void greetFail() throws Exception {
+		this.mvc.perform(get("/greet").with(anonymous()))
+				.andExpect(status().is4xxClientError());
+	}
 
-				this.mvc
-					.perform(get("/greet").with(anonymous()))
-					.andExpect(status().is4xxClientError());
-		}
+	@Test
+	public void greetSuccess() throws Exception {
 
-		@Test
-		public void greetSuccess() throws Exception {
+		TypeReference<Map<String, Object>> typeReference = new TypeReference<Map<String, Object>>() {
+		};
 
-				TypeReference<Map<String, Object>> typeReference =
-					new TypeReference<Map<String, Object>>() {
-					};
+		AtomicReference<String> tokenReference = new AtomicReference<>();
 
-				AtomicReference<String> tokenReference = new AtomicReference<>();
+		String rob = "rob";
+		this.mvc.perform(
+				post("/authenticate").param("username", rob).param("password", "pw"))
+				.andExpect(result -> {
+					String response = result.getResponse().getContentAsString();
+					log.info("response: " + response);
 
-				String rob = "rob";
-				this.mvc
-					.perform(post("/authenticate")
-						.param("username", rob)
-						.param("password", "pw")
-					)
-					.andExpect(result -> {
-							String response = result.getResponse().getContentAsString();
-							log.info("response: " + response);
+					Map<String, String> map = this.objectMapper.readValue(response,
+							typeReference);
+					String token = map.get("token");
+					Assert.assertTrue(token.contains(rob));
+					tokenReference.set(token);
+				});
 
-							Map<String, String> map = this.objectMapper
-								.readValue(response, typeReference);
-							String token = map.get("token");
-							Assert.assertTrue(token.contains(rob));
-							tokenReference.set(token);
-					});
+		this.mvc.perform(get("/greet").header("x-auth-token", tokenReference.get()))
+				.andExpect(content().string("hello, " + rob + "!"));
+	}
 
-				this.mvc
-					.perform(get("/greet")
-						.header("x-auth-token", tokenReference.get()))
-					.andExpect(content().string("hello, " + rob + "!"));
-		}
 }

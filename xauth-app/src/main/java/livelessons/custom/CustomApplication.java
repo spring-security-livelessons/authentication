@@ -19,66 +19,59 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 /**
-	* curl -v -X POST -F "username=rob" -F"password=pw" http://localhost:8080/authenticate
-	* curl -v -H"x-auth-token: rob:1532068547605:c704d3c1c78a17922070a8e7b7e02144" http://localhost:8080/greet
-	*/
+ * curl -v -X POST -F "username=rob" -F"password=pw" http://localhost:8080/authenticate
+ * curl -v -H"x-auth-token: rob:1532068547605:c704d3c1c78a17922070a8e7b7e02144"
+ * http://localhost:8080/greet
+ */
 @SpringBootApplication
 public class CustomApplication {
 
-		public static void main(String[] args) {
-				SpringApplication.run(CustomApplication.class, args);
-		}
+	public static void main(String[] args) {
+		SpringApplication.run(CustomApplication.class, args);
+	}
+
 }
 
 @Configuration
 class UserConfiguration {
 
-		@Bean
-		InMemoryUserDetailsManager authentication() {
-				return new InMemoryUserDetailsManager(user("rob"), user("josh"));
-		}
+	@Bean
+	InMemoryUserDetailsManager authentication() {
+		return new InMemoryUserDetailsManager(user("rob"), user("josh"));
+	}
 
-		private static UserDetails user(String u) {
-				return User
-					.withDefaultPasswordEncoder()
-					.roles("USER")
-					.username(u)
-					.password("pw")
-					.build();
-		}
+	private static UserDetails user(String u) {
+		return User.withDefaultPasswordEncoder().roles("USER").username(u).password("pw")
+				.build();
+	}
+
 }
 
 @Configuration
 @EnableWebSecurity
 class CustomSecurity extends WebSecurityConfigurerAdapter {
 
+	@Bean
+	@Override
+	public AuthenticationManager authenticationManagerBean() throws Exception {
+		return super.authenticationManagerBean();
+	}
 
-		@Bean
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-				return super.authenticationManagerBean();
-		}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests().mvcMatchers("/greet").authenticated().anyRequest()
+				.permitAll().and().httpBasic().and().csrf().disable();
+	}
 
-
-				http
-					.authorizeRequests()
-					.mvcMatchers("/greet").authenticated()
-					.anyRequest().permitAll()
-					.and()
-					.httpBasic()
-					.and()
-					.csrf().disable();
-		}
 }
 
 @RestController
 class GreetingsRestController {
 
-		@GetMapping("/greet")
-		String greet(Principal p) {
-				return "hello, " + p.getName() + "!";
-		}
+	@GetMapping("/greet")
+	String greet(Principal p) {
+		return "hello, " + p.getName() + "!";
+	}
+
 }

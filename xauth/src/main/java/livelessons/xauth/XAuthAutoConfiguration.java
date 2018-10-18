@@ -6,4 +6,5 @@ import org.springframework.context.annotation.Import;
 @Configuration
 @Import(XAuthConfiguration.class)
 public class XAuthAutoConfiguration {
+
 }

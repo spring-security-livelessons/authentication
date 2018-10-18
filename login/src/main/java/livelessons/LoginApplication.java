@@ -17,46 +17,51 @@ import java.security.Principal;
 @SpringBootApplication
 public class LoginApplication {
 
-		public static void main(String[] args) {
-				SpringApplication.run(LoginApplication.class, args);
-		}
+	public static void main(String[] args) {
+		SpringApplication.run(LoginApplication.class, args);
+	}
+
 }
 
 @ControllerAdvice
 class SecurityControllerAdvice {
 
-		@ModelAttribute("currentUser")
-		Principal currentUser(Principal principal) {
-				return principal;
-		}
+	@ModelAttribute("currentUser")
+	Principal currentUser(Principal principal) {
+		return principal;
+	}
+
 }
 
 @Controller
 class LoginController {
 
-		@GetMapping("/")
-		String index() {
-				return "hidden";
-		}
+	@GetMapping("/")
+	String index() {
+		return "hidden";
+	}
 
-		@GetMapping("/logout-success")
-		String logout() {
-				return "logout";
-		}
+	@GetMapping("/logout-success")
+	String logout() {
+		return "logout";
+	}
 
-		@GetMapping("/login")
-		String login() {
-				return "login";
-		}
+	@GetMapping("/login")
+	String login() {
+		return "login";
+	}
+
 }
 
 @EnableWebSecurity
 class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-				http.authorizeRequests().anyRequest().authenticated();
-				http.logout().logoutUrl("/logout").logoutSuccessUrl("/logout-success").permitAll();
-				http.formLogin().loginPage("/login").permitAll();
-		}
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http.authorizeRequests().anyRequest().authenticated();
+		http.logout().logoutUrl("/logout").logoutSuccessUrl("/logout-success")
+				.permitAll();
+		http.formLogin().loginPage("/login").permitAll();
+	}
+
 }
